@@ -76,16 +76,16 @@ public class BigEyeFilter extends AbstractFrameFilter{
 
         float[] landmarks = mFace.faceRects;
         //左眼
-        float x = landmarks[0]/mFace.imgWidth;
-        float y = landmarks[1]/mFace.imgHeight;
+        float x = landmarks[2]/mFace.imgWidth;
+        float y = landmarks[3]/mFace.imgHeight;
         left.clear();
         left.put(x);
         left.put(y);
         left.position(0);
         GLES20.glUniform2fv(left_eye,1,left);
         //右眼
-        x = landmarks[2]/mFace.imgWidth;
-        y = landmarks[3]/mFace.imgHeight;
+        x = landmarks[4]/mFace.imgWidth;
+        y = landmarks[5]/mFace.imgHeight;
         right.clear();
         right.put(x);
         right.put(y);

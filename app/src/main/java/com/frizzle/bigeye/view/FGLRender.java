@@ -10,6 +10,7 @@ import com.frizzle.bigeye.face.OpenCVJni;
 import com.frizzle.bigeye.filter.BigEyeFilter;
 import com.frizzle.bigeye.filter.CameraFilter;
 import com.frizzle.bigeye.filter.ScreenFilter;
+import com.frizzle.bigeye.filter.StickFilter;
 import com.frizzle.bigeye.util.CameraHelper;
 import com.frizzle.bigeye.util.Utils;
 
@@ -32,10 +33,12 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
     private CameraFilter mCameraFilter;
     private ScreenFilter mScreenFilter;
     private BigEyeFilter mBigEyeFilter;
+    private StickFilter mStickFilter;
     private OpenCVJni openCVJni;
     private int cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private File lbpcascade_frontalface= new File(new File(Environment.getExternalStorageDirectory(), "lbpcascade_frontalface.xml").getAbsolutePath());
     private File seeta_fa_v1 = new File(new File(Environment.getExternalStorageDirectory(), "seeta_fa_v1.1.bin").getAbsolutePath());
+
     public FGLRender(FGLView view) {
         mView=view;
         init();
@@ -61,6 +64,7 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
         mCameraFilter = new CameraFilter(mView.getContext());
         mScreenFilter = new ScreenFilter(mView.getContext());
         mBigEyeFilter = new BigEyeFilter(mView.getContext());
+        mStickFilter = new StickFilter(mView.getContext());
         mCameraFilter.setMatrix(mtx);
     }
 
@@ -71,6 +75,7 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
         mCameraFilter.onReady(width,height);
         mScreenFilter.onReady(width,height);
         mBigEyeFilter.onReady(width,height);
+        mStickFilter.onReady(width,height);
         openCVJni = new OpenCVJni(lbpcascade_frontalface.getAbsolutePath(), seeta_fa_v1.getAbsolutePath(),mCameraHelper);
         openCVJni.startTrack();
     }
@@ -92,7 +97,9 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
         int id = mCameraFilter.onDrawFrame(mTextures[0]);
         //..责任链模式可以在这加各种滤镜,最终交给mScreenFilter去做显示(运用到SurfaceView中)
         mBigEyeFilter.setFace(openCVJni.getFace());
-        id= mBigEyeFilter.onDrawFrame(id);
+        id = mBigEyeFilter.onDrawFrame(id);
+        mStickFilter.setmFace(openCVJni.getFace());
+        id = mStickFilter.onDrawFrame(id);
         mScreenFilter.onDrawFrame(id);
 
     }

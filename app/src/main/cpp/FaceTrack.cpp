@@ -42,7 +42,7 @@ vector<Rect2f> FaceTrack::decetor(Mat src) {
         //遍历人脸,对每个人眼定位放大
         Rect face = faces[0];
         //人脸区域
-//        rects.push_back(Rect2f(face.x,face.y,face.width,face.height));
+        rects.push_back(Rect2f(face.x,face.y,face.width,face.height));
         seeta:: ImageData image_data(src.cols,src.rows) ;
         image_data.data=src.data;
         //待检测的区域,人脸区域检测人眼
