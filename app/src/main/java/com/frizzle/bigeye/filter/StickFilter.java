@@ -89,6 +89,9 @@ public class StickFilter extends AbstractFrameFilter {
 
     /**
      * 绘制贴纸Bitmap
+     * 这里实现的最基础的功能
+     * 可能会人脸在镜头中会不断变化,在不断地检测,贴纸可能存在"抖动"现象
+     * 可以通过计算解决"抖动现象" 比如记录当前显示贴纸的坐标,下次计算的坐标在距离当前坐标xx范围内不改变位置
      */
     private void onDrowStick() {
         //开启混合模式 将图片进行混合
@@ -98,7 +101,7 @@ public class StickFilter extends AbstractFrameFilter {
         //人脸的宽高
         float x = mFace.faceRects[0]/mFace.imgWidth*mWidth;
         float y = mFace.faceRects[1]/mFace.imgHeight*mHeight;
-        int yResult = (int) y - (int) ((float) mFace.height / mFace.imgHeight * (mHeight/5));
+        int yResult = (int) (y -(float) mFace.height / mFace.imgHeight* mHeight);
         GLES20.glViewport((int) x,yResult,(int) ((float)mFace.width/mFace.imgWidth*mWidth),(int)((float)mFace.height/mFace.imgHeight*mHeight));
         //设置显示窗口
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER,mFramBuffer[0]);

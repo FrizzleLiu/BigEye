@@ -7,11 +7,13 @@
     tools:context=".MainActivity">
 
     <com.frizzle.bigeye.view.FGLView
+        android:id="@+id/fgl_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         />
 
     <androidx.appcompat.widget.AppCompatSeekBar
+        android:visibility="gone"
         android:id="@+id/seekbar"
         android:layout_height="30dp"
         android:layout_marginBottom="60dp"
@@ -22,7 +24,7 @@
 
     <Button
         android:id="@+id/btn_start"
-        android:text="开始"
+        android:text="开启美颜"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         />

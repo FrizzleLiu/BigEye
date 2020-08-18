@@ -7,9 +7,16 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
+import com.frizzle.bigeye.view.FGLView;
+
 public class MainActivity extends AppCompatActivity {
+
+    private Button btnStart;
+    private boolean startBeauty;
+    private FGLView fglView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,10 +31,28 @@ public class MainActivity extends AppCompatActivity {
             if (checkSelfPermission(perms[0]) == PackageManager.PERMISSION_DENIED || checkSelfPermission(perms[1]) == PackageManager.PERMISSION_DENIED) {
                 requestPermissions(perms,200);
             }else {
-                setContentView(R.layout.activity_main);
+                setView();
             }
         } else {
-            setContentView(R.layout.activity_main);
+            setView();
         }
+    }
+
+    private void setView() {
+        setContentView(R.layout.activity_main);
+        btnStart = findViewById(R.id.btn_start);
+        fglView = findViewById(R.id.fgl_view);
+        btnStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startBeauty = !startBeauty;
+                fglView.enableBeauty(startBeauty);
+                if (startBeauty){
+                    btnStart.setText("关闭美颜");
+                }else {
+                    btnStart.setText("开启美颜");
+                }
+            }
+        });
     }
 }

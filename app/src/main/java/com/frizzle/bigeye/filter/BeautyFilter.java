@@ -5,35 +5,22 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES20;
 
 import com.frizzle.bigeye.R;
-import com.frizzle.bigeye.face.Face;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
+import javax.microedition.khronos.opengles.GL;
 
 /**
  * author: LWJ
- * date: 2020/8/14$
- * description大眼滤镜
- * */
-public class BigEyeFilter extends AbstractFrameFilter{
-    private int left_eye;
-    private int right_eye;
-    private FloatBuffer left;
-    private FloatBuffer right;
-    private Face mFace;
-
-    public BigEyeFilter(Context context) {
-        super(context,  R.raw.camera_vertex, R.raw.bigeye_frag);
-        left_eye = GLES20.glGetUniformLocation(mProgram,"left_eye");
-        right_eye = GLES20.glGetUniformLocation(mProgram,"right_eye");
-        left = ByteBuffer.allocateDirect(2 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-        right = ByteBuffer.allocateDirect(2 * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-
-    }
-
-    public void setFace(Face face){
-        mFace = face;
+ * date: 2020/8/18$
+ * description
+ * 人脸美颜滤镜
+ */
+public class BeautyFilter extends AbstractFrameFilter{
+    private int width;
+    private int height;
+    public BeautyFilter(Context context) {
+        super(context, R.raw.base_vertex, R.raw.beauty_frag);
+        width = GLES20.glGetUniformLocation(mProgram,"width");
+        height = GLES20.glGetUniformLocation(mProgram,"height");
     }
 
     @Override
@@ -59,41 +46,29 @@ public class BigEyeFilter extends AbstractFrameFilter{
 
     @Override
     public int onDrawFrame(int textureId) {
-        if (mFace == null){
-            return textureId;
-        }
-        GLES20.glViewport(0,0,mWidth, mHeight) ;
-        GLES20.glBindFramebuffer(GLES20. GL_FRAMEBUFFER, mFramBuffer[0]);
-        GLES20.glUseProgram(mProgram) ;
-
+        //设置显示窗口
+        GLES20.glViewport(0,0,mWidth,mHeight);
+        //告诉GPU将数据渲染到FBO中,不调用默认GL_SurfaceView
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER,mFramBuffer[0]);
+        //使用着色器
+        GLES20.glUseProgram(mProgram);
+        //赋值片元着色器中的 width和height
+        GLES20.glUniform1i(width,mWidth);
+        GLES20.glUniform1i(height,mHeight);
+        //置为初始状态
         mVertexBuffer.position(0);
+        //给vPosition赋值
         GLES20.glVertexAttribPointer(vPosition,2,GLES20.GL_FLOAT,false,0,mVertexBuffer);
+        //激活可用状态
         GLES20.glEnableVertexAttribArray(vPosition);
 
+        //将mTexttureBuffer的值赋值给OpenGL的vCoord
         mTexttureBuffer.position(0);
+        //给vPosition赋值
         GLES20.glVertexAttribPointer(vCoord,2,GLES20.GL_FLOAT,false,0,mTexttureBuffer);
         GLES20.glEnableVertexAttribArray(vCoord);
-
-        float[] landmarks = mFace.faceRects;
-        //左眼
-        float x = landmarks[2]/mFace.imgWidth;
-        float y = landmarks[3]/mFace.imgHeight;
-        left.clear();
-        left.put(x);
-        left.put(y);
-        left.position(0);
-        GLES20.glUniform2fv(left_eye,1,left);
-        //右眼
-        x = landmarks[4]/mFace.imgWidth;
-        y = landmarks[5]/mFace.imgHeight;
-        right.clear();
-        right.put(x);
-        right.put(y);
-        right.position(0);
-        GLES20.glUniform2fv(right_eye,1,right);
-
         //激活图层
-        GLES20.glActiveTexture(GLES20. GL_TEXTURE) ;
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0) ;
 
         //将GPU的片元着色器的采样器与Java层的SurfaceTexture绑定
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D,textureId);
@@ -104,7 +79,6 @@ public class BigEyeFilter extends AbstractFrameFilter{
         //解绑
         GLES20. glBindTexture(GLES20.GL_TEXTURE_2D, 0) ;
         GLES20. glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0) ;
-        //返回FBO ID
         return mFramBufferTextures[0];
     }
 }

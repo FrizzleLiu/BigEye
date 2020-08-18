@@ -5,8 +5,10 @@ import android.hardware.Camera;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Environment;
+import android.util.Log;
 
 import com.frizzle.bigeye.face.OpenCVJni;
+import com.frizzle.bigeye.filter.BeautyFilter;
 import com.frizzle.bigeye.filter.BigEyeFilter;
 import com.frizzle.bigeye.filter.CameraFilter;
 import com.frizzle.bigeye.filter.ScreenFilter;
@@ -34,8 +36,11 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
     private ScreenFilter mScreenFilter;
     private BigEyeFilter mBigEyeFilter;
     private StickFilter mStickFilter;
+    private BeautyFilter mBeautyFilter;
     private OpenCVJni openCVJni;
     private int cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+    private int mWidth;
+    private int mHeight;
     private File lbpcascade_frontalface= new File(new File(Environment.getExternalStorageDirectory(), "lbpcascade_frontalface.xml").getAbsolutePath());
     private File seeta_fa_v1 = new File(new File(Environment.getExternalStorageDirectory(), "seeta_fa_v1.1.bin").getAbsolutePath());
 
@@ -68,14 +73,25 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
         mCameraFilter.setMatrix(mtx);
     }
 
+    /**
+     * @param gl10
+     * @param width
+     * @param height
+     * 这个方法是在GLThread中执行的,并非主线程
+     */
     @Override
     public void onSurfaceChanged(GL10 gl10, int width, int height) {
         mCameraHelper.startPreview(mSurfaceTexture);
         mCameraHelper.setPreviewCallback(this);
+        mWidth = width;
+        mHeight = height;
         mCameraFilter.onReady(width,height);
         mScreenFilter.onReady(width,height);
         mBigEyeFilter.onReady(width,height);
         mStickFilter.onReady(width,height);
+        if (mBeautyFilter != null){
+            mBeautyFilter.onReady(width,height);
+        }
         openCVJni = new OpenCVJni(lbpcascade_frontalface.getAbsolutePath(), seeta_fa_v1.getAbsolutePath(),mCameraHelper);
         openCVJni.startTrack();
     }
@@ -100,6 +116,9 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
         id = mBigEyeFilter.onDrawFrame(id);
         mStickFilter.setmFace(openCVJni.getFace());
         id = mStickFilter.onDrawFrame(id);
+        if (mBeautyFilter != null){
+            id = mBeautyFilter.onDrawFrame(id);
+        }
         mScreenFilter.onDrawFrame(id);
 
     }
@@ -114,5 +133,26 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
         if (openCVJni!=null){
             openCVJni.detector(data);
         }
+    }
+
+    /**
+     * @param startBeauty
+     * onSurfaceChanged方法是在GLThread中执行的,并非主线程
+     * 所以对滤镜的操作应该在对应的GLThread中进行,不能在主线程中执行
+     */
+    public void enableBeauty(final boolean startBeauty) {
+        mView.queueEvent(new Runnable() {
+            @Override
+            public void run() {
+                if (startBeauty){
+                    Log.e("开启美颜","start");
+                    mBeautyFilter= new BeautyFilter(mView.getContext());
+                    mBeautyFilter.onReady(mWidth,mHeight);
+                }else {
+                    Log.e("开启美颜","close");
+                    mBeautyFilter = null;
+                }
+            }
+        });
     }
 }
