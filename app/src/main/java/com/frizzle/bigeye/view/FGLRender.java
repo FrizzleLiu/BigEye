@@ -41,11 +41,13 @@ public class FGLRender implements GLSurfaceView.Renderer, SurfaceTexture.OnFrame
     private int cameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
     private int mWidth;
     private int mHeight;
-    private File lbpcascade_frontalface= new File(new File(Environment.getExternalStorageDirectory(), "lbpcascade_frontalface.xml").getAbsolutePath());
-    private File seeta_fa_v1 = new File(new File(Environment.getExternalStorageDirectory(), "seeta_fa_v1.1.bin").getAbsolutePath());
+    private File lbpcascade_frontalface;
+    private File seeta_fa_v1;
 
     public FGLRender(FGLView view) {
         mView=view;
+        lbpcascade_frontalface = new File(new File(mView.getContext().getCacheDir(), "lbpcascade_frontalface.xml").getAbsolutePath());
+        seeta_fa_v1 = new File(new File(mView.getContext().getCacheDir(), "seeta_fa_v1.1.bin").getAbsolutePath());
         init();
     }
 

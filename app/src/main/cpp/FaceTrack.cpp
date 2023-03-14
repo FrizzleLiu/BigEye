@@ -58,10 +58,10 @@ vector<Rect2f> FaceTrack::decetor(Mat src) {
             //五个关键点分别是 左眼（0）、右眼（1）、鼻子（2）、嘴巴左边（3）、嘴巴右边（4）
             rects.push_back(Rect2f(points[i].x,points[i].y,0,0));
             if (i==0){
-                LOGE("左眼坐标 x: %ld  y: %ld",faces[0].x,faces[0].y);
+                LOGE("左眼坐标 x: %d  y: %d",faces[0].x,faces[0].y);
             }
             if (i==1){
-                LOGE("右眼坐标 x: %ld y: %ld",faces[1].x,faces[1].y);
+                LOGE("右眼坐标 x: %d y: %d",faces[1].x,faces[1].y);
             }
         }
     }
